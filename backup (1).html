@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        
+        canvas {
+            background-color: #C0C0C0;
+            display: block;
+            margin: 0 auto;
+            border: black 2px solid;
+        }
+    </style>
+</head>
+
+<body onload="startGame()">
+    <script>
+        var myGamePiece;
+        var myObstacle = [];
+        var score = 0;
+        var coordinates = [];
+        var start_check = false;
+        var number_of_obstacles = 7;
+        var time_count = 0;
+        var end_comp;
+        var interval = 10;
+
+        function startGame() {
+            myGamePiece = new component(30, 30, "#F4D03F", 30, 100);
+            end_comp = new component(50, 100, "#008000", 950, 200);
+
+            for (i = 0; i < number_of_obstacles; i++) {
+                if (i % 2 == 0)
+                    myObstacle.push(new component(20, 250, "red", 300 + (100 * (i + 1)), 0));
+                else
+                    myObstacle.push(new component(20, 250, "red", 300 + (100 * (i + 1)), 250));
+            }
+
+            myGameArea.start();
+        }
+
+        var myGameArea = {
+            canvas: document.createElement("canvas"),
+            start: function() {
+                this.canvas.width = 1000;
+                this.canvas.height = 500;
+                this.canvas.style.cursor = "none"; //hide the original cursor
+                this.context = this.canvas.getContext("2d");
+                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                this.interval = setInterval(updateGameArea, interval); //number of updates in ms and can be seen (speed in x effectively)
+                this.context.font = "40px Verdana";
+                this.context.fillText("Press 'p' to start playing", this.canvas.width / 2 - 250, this.canvas.height / 2);
+                myGamePiece.update();
+                end_comp.update();
+
+                window.addEventListener('keydown', function(event) {
+                    if (event.keyCode == 80) {
+                        start_check = true;
+                    }
+
+                })
+                window.addEventListener('mousemove', function(e) {
+                    myGameArea.y = e.pageY * 1; //multiplier can be used to control the speed of the y coordinate
+
+                })
+            },
+            clear: function() {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.context.fillStyle = "#000";
+                this.context.font = "20px Verdana";
+                this.context.fillText("Score : " + score, 20, 20);
+
+            }
+        }
+
+        function component(width, height, color, x, y) {
+            this.width = width;
+            this.height = height;
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.collide = false;
+            this.gravity = 0.05; //initial gravity value, depend and adust later accordingly
+            this.gravitySpeed = 0.05; //speed of initial gravity value
+            this.update = function() {
+                ctx = myGameArea.context;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+            this.newPos = function() {
+                this.hitBottom();
+            }
+            this.hitBottom = function() {
+                var rockbottom = myGameArea.canvas.height - myGamePiece.height;
+                if (this.y > rockbottom) {
+                    this.y = rockbottom;
+                }
+            }
+
+        }
+
+        function detectCollision(gp) {
+            for (i = 0; i < myObstacle.length; i++) {
+                if ((myObstacle[i].x - myObstacle[i].width / 2) <= gp.x && (myObstacle[i].x + myObstacle[i].width / 2) >= gp.x) {
+                    if (myObstacle[i].y <= gp.y + gp.height && (myObstacle[i].y + myObstacle[i].height) >= gp.y) {
+                        if (myObstacle[i].collide ==false) {
+                            score = Math.round(score*10);
+                            myObstacle[i].collide = true;
+                            myObstacle[i].color = "#0000FF";
+                        }
+                    }
+                }
+            }
+            if (end_comp.x - (end_comp.width / 2) <= gp.x && end_comp.x + (end_comp.width / 2) >= gp.x) {
+
+                if (end_comp.y <= gp.y + gp.height && end_comp.y + end_comp.height >= gp.y) {
+                    //umair
+                    //write code here to dump co-ordinates array
+
+                    this.myGameArea.clear();
+                    start_check = false;
+                    myGamePiece = null;
+                    myObstacle = [];
+                    score = 100000;
+                    coordinates = [];
+                    start_check = false;
+                    time_count = 0;
+                    end_comp = null;
+                    interval *= 10;
+                    this.startGame();
+                }
+            }
+        }
+
+        async function restart() {
+            //umair write the coordinates array saving code here too
+            await new Promise(r => setTimeout(r, 3000));
+            this.myGameArea.clear();
+            start_check = false;
+            myGamePiece = null;
+            myObstacle = [];
+            score = 100000;
+            coordinates = [];
+            start_check = false;
+            time_count = 0;
+            end_comp = null;
+            interval *= 10;
+            this.startGame();
+        }
+
+        function updateGameArea() {
+            if (start_check == true) {
+                myGameArea.clear();
+                end_comp.update();
+                for (i = 0; i < myObstacle.length; i++) {
+                    myObstacle[i].update();
+
+                }
+                this.detectCollision(myGamePiece);
+
+                coordinates.push((myGamePiece.x, myGamePiece.y, time_count, score));
+                time_count += 1;
+                myGamePiece.update();
+                if (myGamePiece.x <= 1000 - myGamePiece.width / 2) {
+                    if (time_count % 5 == 0)
+                    score -= 1;
+                    myGamePiece.x += 1; //make it move in the x direction itself
+                    myGamePiece.gravitySpeed += myGamePiece.gravity;
+                    myGamePiece.y = myGameArea.y + myGamePiece.gravitySpeed;
+                    myGamePiece.newPos();
+                }
+                if (myGamePiece.x > 1000 - myGamePiece.width / 2) {
+                    this.restart();
+                }
+
+            }
+
+        }
+    </script>
+
+    <p style="font-size:28px; text-align: center; color: red; margin-top:50px; ">Lets try and see how much you can score!</p>
+
+</body>
+
+</html>

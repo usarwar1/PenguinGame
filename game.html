@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+    *{ padding: 0; margin: 0; }
+canvas {
+    background-color: #C0C0C0;
+    display: block;
+    margin: 0 auto;
+    border:black 2px solid;
+
+}
+</style>
+</head>
+<body onload="startGame()">
+<script>
+
+var myGamePiece;
+var myObstacle=[];
+
+
+function startGame() {
+    myGamePiece = new component(30, 30, "#F4D03F", 30, 100);
+    myObstacle = new component(20, 320, "red", 500, 0);
+    myGameArea.start();
+}
+
+var myGameArea = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+        this.canvas.width = 1420;
+        this.canvas.height = 600;
+        this.canvas.style.cursor = "none";                               //hide the original cursor
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.interval = setInterval(updateGameArea,10);                  //number of updates in ms and can be seen (speed in x effectively)
+        window.addEventListener('mousemove', function (e) {
+            myGameArea.y = e.pageY*0.5;                                       //multiplier can be used to control the speed of the y coordinate
+        })
+    }, 
+    clear : function(){
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+function component(width, height, color, x, y) {
+    this.width = width;
+    this.height = height;
+    this.speedY = 0;    
+    this.x = x;
+    this.y = y; 
+    this.gravity = -0.6;                                                     //initial gravity value, depend and adust later accordingly
+    this.gravitySpeed = 0.4;                                                //speed of initial gravity value
+    this.bounce = 0.2;
+    this.update = function() {
+        ctx = myGameArea.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+    this.newPos = function() {
+        this.hitBottom();
+    }
+    this.hitBottom = function() {
+        var rockbottom = myGameArea.canvas.height - this.height;
+        if (this.y > rockbottom) {
+            this.y = rockbottom;
+        }
+    }
+
+}
+
+function updateGameArea() {
+    myGameArea.clear();
+    myObstacle.update();
+    myGamePiece.x +=1;                            //make it move in the x direction itself
+    myGamePiece.gravitySpeed += myGamePiece.gravity;
+    myGamePiece.y=myGameArea.y+myGamePiece.gravitySpeed;
+    myGamePiece.newPos();
+    myGamePiece.update();
+}
+
+
+</script>
+
+<p style="font-size:28px; text-align: center; color: red; margin-top:50px; ">Lets try and see how much you can score!</p>
+
+</body>
+</html>

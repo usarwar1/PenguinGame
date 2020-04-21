@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        
+        canvas {
+            background-image: url("images/ant.jpeg");
+            background-repeat: no-repeat;
+            background-size: 1250px 600px;
+            display: block;
+            margin: 0 auto;
+            border: black 2px solid;
+            padding: 100
+
+
+        }
+    </style>
+    <title>Practise</title>
+    <link rel="stylesheet" href="css/style.css">
+
+<body onload="startGame()">
+
+<h2>Practise Game</h2>
+
+<script src="js/practise.js"></script>
+<script src="js/jQuery.js"></script>
+<script src="js/FileSaver.min.js"></script> 
+
+<p><span>Take your cursor to the red box. Click and HOLD to control the penguin and take it home.Be sure to use your non-dominant hand.</span></p>
+<p><span>Press Next to continue once you complete the practise(Number of obstacles are reduced)</span></p>
+
+<p><span><big><button id="next" onclick="myFunction()">Next</button></big></span></p>
+
+
+ 
+<script>
+function myFunction() {
+    window.location="study.html";
+}
+</script>
+
+</body>
+</html>
